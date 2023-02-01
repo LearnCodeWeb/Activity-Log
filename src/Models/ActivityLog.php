@@ -1,10 +1,9 @@
 <?php
 
-namespace Learncodeweb\Activitylog\Models;
+namespace Lcw\Activitylog\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Learncodeweb\Activitylog\Traits\ActivityLogActions;
 
 class ActivityLog extends Model
 {

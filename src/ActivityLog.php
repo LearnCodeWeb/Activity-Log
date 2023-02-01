@@ -1,11 +1,11 @@
 <?php
 
-namespace Learncodeweb\Activitylog;
+namespace Lcw\Activitylog;
 
 use Illuminate\Http\Request;
 use Exception;
-use Learncodeweb\Activitylog\Models\ActivityLog as ModelsActivityLog;
-use Learncodeweb\Activitylog\Traits\ActivityLogActions;
+use Lcw\Activitylog\Models\ActivityLog as ModelsActivityLog;
+use Lcw\Activitylog\Traits\ActivityLogActions;
 
 class ActivityLog
 {
@@ -109,7 +109,7 @@ class ActivityLog
                 $paramerts[$key] = json_encode($item);
             }
         }
-        $activityLog->insert($paramerts);
-        return self::get(new Request());
+        return $activityLog->insert($paramerts);
+        // return self::get(new Request());
     }
 }

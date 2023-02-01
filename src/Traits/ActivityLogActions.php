@@ -1,6 +1,6 @@
 <?php
 
-namespace Learncodeweb\Activitylog\Traits;
+namespace Lcw\Activitylog\Traits;
 
 use Auth;
 use Illuminate\Support\Facades\Route;

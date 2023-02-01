@@ -19,14 +19,11 @@
         width: 90%;
     }
 
-    /* .sidebar {
-        position: fixed;
-        height: 100vh;
-    } */
-
     .main-content {
         overflow-x: hidden;
         overflow-y: scroll;
+        height: 100vh;
+        width: 100%;
     }
 
     body {
@@ -239,95 +236,101 @@
                                             </tr>
                                         </tfoot>
                                         <tbody>
-                                            @foreach ($log as $key => $item)
-                                                @php
-                                                    $routeDetail = json_decode($item['route_detail'], true);
-                                                    $userDetail = json_decode($item['user'], true);
-                                                    $parametersDetail = json_decode($item['query_string'], true);
-                                                @endphp
+                                            @if (!$log->isEmpty())
+                                                @foreach ($log as $key => $item)
+                                                    @php
+                                                        $routeDetail = json_decode($item['route_detail'], true);
+                                                        $userDetail = json_decode($item['user'], true);
+                                                        $parametersDetail = json_decode($item['query_string'], true);
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ $key + 1 }}</td>
+                                                        <td>{{ $item['log'] }}</td>
+                                                        <td>{{ $item['server_ip'] }}</td>
+                                                        <td>{{ $item['user_ip'] }}</td>
+                                                        <td>
+                                                            @if (!empty($routeDetail))
+                                                                <table class="table table-sm table-hover">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Keys</th>
+                                                                            <th>Values</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($routeDetail as $column => $value)
+                                                                            @php
+                                                                                if (is_array($value)) {
+                                                                                    $value = implode(',', $value);
+                                                                                }
+                                                                            @endphp
+                                                                            <tr>
+                                                                                <td>{!! $column !!}</td>
+                                                                                <td>{!! $value !!}</td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if (!empty($parametersDetail))
+                                                                <table class="table table-sm table-hover">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Keys</th>
+                                                                            <th>Values</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($parametersDetail as $column => $value)
+                                                                            @php
+                                                                                if (is_array($value)) {
+                                                                                    $value = implode(',', $value);
+                                                                                }
+                                                                            @endphp
+                                                                            <tr>
+                                                                                <td>{!! $column !!}</td>
+                                                                                <td>{!! $value !!}</td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if (!empty($userDetail))
+                                                                <table class="table table-sm table-hover">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Keys</th>
+                                                                            <th>Values</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($userDetail as $column => $value)
+                                                                            @php
+                                                                                if (is_array($value)) {
+                                                                                    $value = implode(',', $value);
+                                                                                }
+                                                                            @endphp
+                                                                            <tr>
+                                                                                <td>{!! $column !!}</td>
+                                                                                <td>{!! $value !!}</td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            @endif
+                                                        </td>
+                                                        <td>{!! date('Y-m-d H:i:s', strtotime($item['created_at'])) !!}</td>
+                                                    </tr>
+                                                @endforeach
+                                            @else
                                                 <tr>
-                                                    <td>{{ $key + 1 }}</td>
-                                                    <td>{{ $item['log'] }}</td>
-                                                    <td>{{ $item['server_ip'] }}</td>
-                                                    <td>{{ $item['user_ip'] }}</td>
-                                                    <td>
-                                                        @if (!empty($routeDetail))
-                                                            <table class="table table-sm table-hover">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Keys</th>
-                                                                        <th>Values</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach ($routeDetail as $column => $value)
-                                                                        @php
-                                                                            if (is_array($value)) {
-                                                                                $value = implode(',', $value);
-                                                                            }
-                                                                        @endphp
-                                                                        <tr>
-                                                                            <td>{!! $column !!}</td>
-                                                                            <td>{!! $value !!}</td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if (!empty($parametersDetail))
-                                                            <table class="table table-sm table-hover">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Keys</th>
-                                                                        <th>Values</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach ($parametersDetail as $column => $value)
-                                                                        @php
-                                                                            if (is_array($value)) {
-                                                                                $value = implode(',', $value);
-                                                                            }
-                                                                        @endphp
-                                                                        <tr>
-                                                                            <td>{!! $column !!}</td>
-                                                                            <td>{!! $value !!}</td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if (!empty($userDetail))
-                                                            <table class="table table-sm table-hover">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Keys</th>
-                                                                        <th>Values</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach ($userDetail as $column => $value)
-                                                                        @php
-                                                                            if (is_array($value)) {
-                                                                                $value = implode(',', $value);
-                                                                            }
-                                                                        @endphp
-                                                                        <tr>
-                                                                            <td>{!! $column !!}</td>
-                                                                            <td>{!! $value !!}</td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
-                                                        @endif
-                                                    </td>
-                                                    <td>{!! date('Y-m-d H:i:s', strtotime($item['created_at'])) !!}</td>
+                                                    <td colspan="8" class="text-center">No data found...!</td>
                                                 </tr>
-                                            @endforeach
+                                            @endif
                                         </tbody>
                                     </table>
                                 </div>

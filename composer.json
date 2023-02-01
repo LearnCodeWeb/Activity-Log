@@ -1,10 +1,10 @@
 {
-    "name": "learncodeweb/activitylog",
+    "name": "lcw/activitylog",
     "description": "Activity log will manage all the activity of the web page by user. This package is best to track user activity in any admin/user panel after login.",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Learncodeweb\\Activitylog\\": "src/"
+            "Lcw\\Activitylog\\": "src/"
         }
     },
     "authors": [

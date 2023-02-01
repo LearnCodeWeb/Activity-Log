@@ -1,10 +1,10 @@
 <?php
 
-namespace Learncodeweb\Activitylog\Controllers;
+namespace Lcw\Activitylog\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
-use Learncodeweb\Activitylog\ActivityLog;
+use Lcw\Activitylog\ActivityLog;
 
 class ActivityLogController
 {

@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Learncodeweb\\Activitylog\\' => array($baseDir . '/src'),
+    'Lcw\\Activitylog\\' => array($baseDir . '/src'),
 );
