@@ -50,8 +50,8 @@ trait ActivityLogActions
         }
         if ($action == "data") {
             $response = "";
-            if (!empty(Auth::user())) {
-                $response = json_encode(Auth::user()->first()->toArray());
+            if (Auth::check()) {
+                $response = json_encode(Auth::user()->toArray());
             }
         }
         return $response;

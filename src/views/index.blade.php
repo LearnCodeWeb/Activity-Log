@@ -141,8 +141,8 @@
                 </li>
             </ul>
             <hr>
-            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none">
-                <strong>Visit Website</strong>
+            <a href="{{ url('/') }}" class="btn btn-dark btn-sm">
+                <i class="bi bi-arrow-left"></i> Go Back
             </a>
         </div>
 
@@ -195,6 +195,9 @@
                                 <div class="card-footer">
                                     <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i>
                                         Search</button>
+                                    <a href="{{ route('lcw_activity_log_index') }}" type="submit"
+                                        class="btn btn-danger"><i class="bi bi-arrow-clockwise"></i>
+                                        Clear Search</a>
                                 </div>
                             </div>
                         </form>
@@ -210,29 +213,25 @@
                         <div class="card border-secondary rounded-0">
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-striped mb-0">
+                                    <table class="table table-striped mb-0 text-nowrap">
                                         <thead class="bg-dark text-white">
                                             <tr>
                                                 <th>Sr#</th>
                                                 <th>Log Text</th>
-                                                <th>Server IP</th>
-                                                <th>User IP</th>
+                                                <th>IP</th>
                                                 <th>Page Deatil</th>
                                                 <th>Parameters</th>
                                                 <th>User</th>
-                                                <th>Datetime</th>
                                             </tr>
                                         </thead>
                                         <tfoot class="bg-dark text-white">
                                             <tr>
                                                 <th>Sr#</th>
                                                 <th>Log Text</th>
-                                                <th>Server IP</th>
-                                                <th>User IP</th>
+                                                <th>IP</th>
                                                 <th>Page Deatil</th>
                                                 <th>Parameters</th>
                                                 <th>User</th>
-                                                <th>Datetime</th>
                                             </tr>
                                         </tfoot>
                                         <tbody>
@@ -246,8 +245,16 @@
                                                     <tr>
                                                         <td>{{ $key + 1 }}</td>
                                                         <td>{{ $item['log'] }}</td>
-                                                        <td>{{ $item['server_ip'] }}</td>
-                                                        <td>{{ $item['user_ip'] }}</td>
+                                                        <td nowrap>
+                                                            <span class="text-danger">Server:</span>
+                                                            {{ $item['server_ip'] }}<br>
+                                                            <span class="text-danger">User:</span>
+                                                            {{ $item['user_ip'] }}
+                                                            <br>
+                                                            <span class="badge bg-dark text-sm">
+                                                                {!! date('Y-m-d H:i:s', strtotime($item['created_at'])) !!}
+                                                            </span>
+                                                        </td>
                                                         <td>
                                                             @if (!empty($routeDetail))
                                                                 <table class="table table-sm table-hover">
@@ -265,7 +272,7 @@
                                                                                 }
                                                                             @endphp
                                                                             <tr>
-                                                                                <td>{!! $column !!}</td>
+                                                                                <td>{!! ucwords($column) !!}</td>
                                                                                 <td>{!! $value !!}</td>
                                                                             </tr>
                                                                         @endforeach
@@ -284,15 +291,17 @@
                                                                     </thead>
                                                                     <tbody>
                                                                         @foreach ($parametersDetail as $column => $value)
-                                                                            @php
-                                                                                if (is_array($value)) {
-                                                                                    $value = implode(',', $value);
-                                                                                }
-                                                                            @endphp
-                                                                            <tr>
-                                                                                <td>{!! $column !!}</td>
-                                                                                <td>{!! $value !!}</td>
-                                                                            </tr>
+                                                                            @if ($column != '_token')
+                                                                                @php
+                                                                                    if (is_array($value)) {
+                                                                                        $value = implode(',', $value);
+                                                                                    }
+                                                                                @endphp
+                                                                                <tr>
+                                                                                    <td>{!! ucwords($column) !!}</td>
+                                                                                    <td>{!! $value !!}</td>
+                                                                                </tr>
+                                                                            @endif
                                                                         @endforeach
                                                                     </tbody>
                                                                 </table>
@@ -315,7 +324,7 @@
                                                                                 }
                                                                             @endphp
                                                                             <tr>
-                                                                                <td>{!! $column !!}</td>
+                                                                                <td>{!! ucwords($column) !!}</td>
                                                                                 <td>{!! $value !!}</td>
                                                                             </tr>
                                                                         @endforeach
@@ -323,7 +332,6 @@
                                                                 </table>
                                                             @endif
                                                         </td>
-                                                        <td>{!! date('Y-m-d H:i:s', strtotime($item['created_at'])) !!}</td>
                                                     </tr>
                                                 @endforeach
                                             @else
@@ -346,8 +354,8 @@
 
                 </div>
                 <footer class="pt-5 my-5 text-muted border-top">
-                    Created by <b>Khalid Zaid Bin</b> for <a href="https://www.foula-store.jp/" target="_blank">Foula
-                        Store</a> · © 2023
+                    Created by <b>Khalid Zaid Bin</b> for <a href="{{ url('/') }}" target="_blank">NFS</a> · ©
+                    2023
                 </footer>
             </div>
         </div>

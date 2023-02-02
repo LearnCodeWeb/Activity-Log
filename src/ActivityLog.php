@@ -7,6 +7,23 @@ use Exception;
 use Lcw\Activitylog\Models\ActivityLog as ModelsActivityLog;
 use Lcw\Activitylog\Traits\ActivityLogActions;
 
+
+/**
+ * This package will save the log in activity log master table
+ * You can pass @param listed below
+ * 
+ * Default Route is Your-Domain/log
+ * 
+ * @param log [string]
+ * @param server_ip [The server ip address]
+ * @param user_ip [The client/user ip address]
+ * @param route_detail [Array with route path deatils]
+ * @param query_string [Array with parameters]
+ * @param user_id [Auth session id]
+ * @param user [Array of auth]
+ * @param created_at [datetime]
+ */
+
 class ActivityLog
 {
 
@@ -20,7 +37,12 @@ class ActivityLog
      */
     public function get(Request $request)
     {
+
         try {
+
+            // Delete all old Records
+            self::logDelete();
+
             $condition = '1';
             if (!empty($request->from_created_at)) {
                 $condition .= ' AND created_at >= "' . $request->from_created_at . '"';
@@ -38,20 +60,38 @@ class ActivityLog
             $activityLog = new ModelsActivityLog();
             return $activityLog->whereRaw($condition)->orderBy('id', 'DESC')->paginate(5);
         } catch (Exception $e) {
-            return 'Fetch data not working: ' . $e->getMessage();
+            return '[Get Method] Fetch data not working: ' . $e->getMessage();
         }
     }
 
 
-
-    public function getUsers()
+    /**
+     * Get user name with id from auth table
+     * @param pass user auth id
+     * @return array
+     */
+    public function getUsers(array $parameters = [])
     {
         $activityLog = new ModelsActivityLog();
         $allUsers = $activityLog->select('user')->get();
         $aData = [];
         foreach ($allUsers as $key => $value) {
             $user = json_decode($value['user'], true);
-            $aData[$user['id']] = $user['name'];
+            if (array_key_exists('username', $user)) {
+                $aData[$user['id']] = $user['username'];
+            } elseif (array_key_exists('name', $user)) {
+                $aData[$user['id']] = $user['name'];
+            } elseif (array_key_exists('firstname', $user)) {
+                $aData[$user['id']] = $user['firstname'];
+            } elseif (array_key_exists('lastname', $user)) {
+                $aData[$user['id']] = $user['lastname'];
+            } elseif (array_key_exists('first_name', $user)) {
+                $aData[$user['id']] = $user['first_name'];
+            } elseif (array_key_exists('last_name', $user)) {
+                $aData[$user['id']] = $user['last_name'];
+            } else {
+                $aData[$user['id']] = $user['id'];
+            }
         }
         asort($aData);
         return array_unique($aData);
@@ -102,7 +142,6 @@ class ActivityLog
         $defaultParams = self::defaultData();
         $paramerts = $paramerts + $defaultParams;
 
-
         // Convert all array to string
         foreach ($paramerts as $key => $item) {
             if (is_array($item)) {
@@ -111,5 +150,27 @@ class ActivityLog
         }
         return $activityLog->insert($paramerts);
         // return self::get(new Request());
+    }
+
+
+    /**
+     * Delete older data 
+     * Set in .env [ACTIVITY_LOG_DEL = 3] to change the default delete limit
+     * @param pass any number in months
+     * @return bool
+     */
+    public function logDelete(int $month = 3)
+    {
+        try {
+            if (getenv("ACTIVITY_LOG_DEL")) {
+                $month = env("ACTIVITY_LOG_DEL");
+            }
+            $oldDate = date('Y-m-d', strtotime('-' . $month . ' months'));
+
+            $activityLog = new ModelsActivityLog();
+            return $activityLog->where('created_at', '<', $oldDate)->delete();
+        } catch (Exception $e) {
+            return '[Get Method] Fetch data not working: ' . $e->getMessage();
+        }
     }
 }

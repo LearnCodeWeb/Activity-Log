@@ -16,7 +16,8 @@ class ActivityLogController
     public function index(Request $request, ActivityLog $activityLog)
     {
         try {
-            $user = $activityLog->getUsers();
+            $parameters = ['user_id' => Auth()->user()->id];
+            $user = $activityLog->getUsers($parameters);
             $log = $activityLog->get($request);
             $data = [
                 'log' => $log,
@@ -24,7 +25,7 @@ class ActivityLogController
             ];
             return view('ActivityLog::index', $data);
         } catch (Exception $e) {
-            return 'Fetch data not working: ' . $e->getMessage();
+            return '[Controller Index] Fetch data not working: ' . $e->getMessage();
         }
     }
 }
