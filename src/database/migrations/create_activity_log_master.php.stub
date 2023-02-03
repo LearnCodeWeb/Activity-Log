@@ -16,8 +16,8 @@ class CreateActivityLogMaster extends Migration
         Schema::create('activity_log_master', function (Blueprint $table) {
             $table->id();
             $table->longText('log')->nullable();
-            $table->string('server_ip', 64)->nullable();
-            $table->string('user_ip', 64)->nullable();
+            $table->longText('server_ip_detail')->nullable();
+            $table->longText('user_ip_detail')->nullable();
             $table->longText('route_detail')->nullable();
             $table->longText('query_string')->nullable();
             $table->integer('user_id')->nullable();

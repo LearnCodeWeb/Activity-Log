@@ -16,8 +16,7 @@ class ActivityLogController
     public function index(Request $request, ActivityLog $activityLog)
     {
         try {
-            $parameters = ['user_id' => Auth()->user()->id];
-            $user = $activityLog->getUsers($parameters);
+            $user = $activityLog->getUsers();
             $log = $activityLog->get($request);
             $data = [
                 'log' => $log,

@@ -40,15 +40,17 @@ class ActivityLog
 
         try {
 
+            $limit = isset($request->limit) ? $request->limit : '10';
+
             // Delete all old Records
             self::logDelete();
 
             $condition = '1';
             if (!empty($request->from_created_at)) {
-                $condition .= ' AND created_at >= "' . $request->from_created_at . '"';
+                $condition .= ' AND DATE(created_at) >= "' . $request->from_created_at . '"';
             }
             if (!empty($request->to_created_at)) {
-                $condition .= ' AND created_at <= "' . $request->to_created_at . '"';
+                $condition .= ' AND DATE(created_at) <= "' . $request->to_created_at . '"';
             }
             if (!empty($request->log)) {
                 $condition .= ' AND log LIKE "%' . $request->log . '%"';
@@ -58,7 +60,7 @@ class ActivityLog
             }
 
             $activityLog = new ModelsActivityLog();
-            return $activityLog->whereRaw($condition)->orderBy('id', 'DESC')->paginate(5);
+            return $activityLog->whereRaw($condition)->orderBy('id', 'DESC')->paginate($limit);
         } catch (Exception $e) {
             return '[Get Method] Fetch data not working: ' . $e->getMessage();
         }
@@ -107,8 +109,24 @@ class ActivityLog
     public function defaultData()
     {
         $log = $this->logText();
+
         $server_ip = $this->getIP('server');
         $user_ip = $this->getIP('user');
+
+        // Get the Server IP details
+        $serverIpGeo = $this->getGeoDetailByIP($server_ip);
+        if (empty($serverIpGeo)) {
+            $serverIpGeo =  json_encode(['server ip' => $server_ip]);
+        }
+        $server_ip_detail =  json_encode($serverIpGeo);
+
+        // Get the User IP details
+        $userIpGeo = $this->getGeoDetailByIP($user_ip);
+        if (empty($userIpGeo)) {
+            $userIpGeo =  json_encode(['server ip' => $server_ip]);
+        }
+        $user_ip_detail =  json_encode($userIpGeo);
+
         $route_detail = $this->routeDetail();
         $query_string = $this->queryString();
         $user_id = $this->userData('id');
@@ -117,8 +135,8 @@ class ActivityLog
 
         $data = [
             'log' => $log,
-            'server_ip' => $server_ip,
-            'user_ip' => $user_ip,
+            'server_ip_detail' => $server_ip_detail,
+            'user_ip_detail' => $user_ip_detail,
             'route_detail' => $route_detail,
             'query_string' => $query_string,
             'user_id' => $user_id,
@@ -149,7 +167,6 @@ class ActivityLog
             }
         }
         return $activityLog->insert($paramerts);
-        // return self::get(new Request());
     }
 
 

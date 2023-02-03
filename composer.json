@@ -10,8 +10,10 @@
     "authors": [
         {
             "name": "Khalid Zaid Bin",
-            "email": "zaidbinkhalid31@gmail.com"
+            "email": "zaid.khalid@kateoftokyo.com"
         }
     ],
-    "require": {}
+    "require": {
+        "guzzlehttp/guzzle": "^7.0.1"
+    }
 }

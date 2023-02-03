@@ -3,6 +3,8 @@
 namespace Lcw\Activitylog\Traits;
 
 use Auth;
+use Exception;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 
@@ -35,6 +37,26 @@ trait ActivityLogActions
         return $ip;
     }
 
+
+
+    /**
+     * Get Geo detail of the IP
+     * @param string ip address
+     * @return response
+     */
+    public function getGeoDetailByIP($ip = "")
+    {
+        try {
+            // This is the free ip info checker for big data maybe you need to pay
+            $url = 'https://ipinfo.io/' . $ip . '/geo';
+            $getGeoDetail = Http::get($url);
+            if ($getGeoDetail->successful()) {
+                return $getGeoDetail->json();
+            }
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
 
     /**

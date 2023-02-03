@@ -163,12 +163,12 @@
                                         <div class="col-sm-3 mb-3">
                                             <label>Create Date</label>
                                             <div class="input-group">
-                                                <input type="text" class="form-control date" name="from_create_date"
-                                                    value="{{ request('from_create_date') }}" id="from_create_date"
+                                                <input type="text" class="form-control date" name="from_created_at"
+                                                    value="{{ request('from_created_at') }}" id="from_created_at"
                                                     placeholder="Date from" readonly>
                                                 <span class="input-group-text">-</span>
-                                                <input type="text" class="form-control date" name="to_create_date"
-                                                    value="{{ request('to_create_date') }}" id="to_create_date"
+                                                <input type="text" class="form-control date" name="to_created_at"
+                                                    value="{{ request('to_created_at') }}" id="to_created_at"
                                                     placeholder="Date to" readonly>
                                             </div>
                                         </div>
@@ -218,44 +218,93 @@
                                             <tr>
                                                 <th>Sr#</th>
                                                 <th>Log Text</th>
-                                                <th>IP</th>
+                                                <th>User</th>
+                                                <th>Server</th>
                                                 <th>Page Deatil</th>
                                                 <th>Parameters</th>
                                                 <th>User</th>
+                                                <th>Datetime</th>
                                             </tr>
                                         </thead>
                                         <tfoot class="bg-dark text-white">
                                             <tr>
                                                 <th>Sr#</th>
                                                 <th>Log Text</th>
-                                                <th>IP</th>
+                                                <th>User</th>
+                                                <th>Server</th>
                                                 <th>Page Deatil</th>
                                                 <th>Parameters</th>
                                                 <th>User</th>
+                                                <th>Datetime</th>
                                             </tr>
                                         </tfoot>
                                         <tbody>
                                             @if (!$log->isEmpty())
                                                 @foreach ($log as $key => $item)
                                                     @php
-                                                        $routeDetail = json_decode($item['route_detail'], true);
+                                                        $userIpDetail = json_decode($item['user_ip_detail'], true);
+                                                        $serverIpDetail = json_decode($item['server_ip_detail'], true);
                                                         $userDetail = json_decode($item['user'], true);
                                                         $parametersDetail = json_decode($item['query_string'], true);
                                                     @endphp
                                                     <tr>
-                                                        <td>{{ $key + 1 }}</td>
-                                                        <td>{{ $item['log'] }}</td>
-                                                        <td nowrap>
-                                                            <span class="text-danger">Server:</span>
-                                                            {{ $item['server_ip'] }}<br>
-                                                            <span class="text-danger">User:</span>
-                                                            {{ $item['user_ip'] }}
-                                                            <br>
-                                                            <span class="badge bg-dark text-sm">
-                                                                {!! date('Y-m-d H:i:s', strtotime($item['created_at'])) !!}
-                                                            </span>
+                                                        <td class="align-baseline">{{ $key + 1 }}</td>
+                                                        <td class="align-baseline">{{ $item['log'] }}</td>
+                                                        <td class="align-baseline">
+                                                            @if (!empty($userIpDetail))
+                                                                <table class="table table-sm table-hover">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Keys</th>
+                                                                            <th>Values</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($userIpDetail as $column => $value)
+                                                                            @if ($column != 'bogon' && $column != 'readme')
+                                                                                @php
+                                                                                    if (is_array($value)) {
+                                                                                        $value = implode(',', $value);
+                                                                                    }
+                                                                                @endphp
+                                                                                <tr>
+                                                                                    <td>{!! ucwords(str_replace('_', ' ', $column)) !!}</td>
+                                                                                    <td>{!! $value !!}</td>
+                                                                                </tr>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            @endif
                                                         </td>
-                                                        <td>
+                                                        <td class="align-baseline">
+                                                            @if (!empty($serverIpDetail))
+                                                                <table class="table table-sm table-hover">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Keys</th>
+                                                                            <th>Values</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($serverIpDetail as $column => $value)
+                                                                            @if ($column != 'bogon' && $column != 'readme')
+                                                                                @php
+                                                                                    if (is_array($value)) {
+                                                                                        $value = implode(',', $value);
+                                                                                    }
+                                                                                @endphp
+                                                                                <tr>
+                                                                                    <td>{!! ucwords(str_replace('_', ' ', $column)) !!}</td>
+                                                                                    <td>{!! $value !!}</td>
+                                                                                </tr>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            @endif
+                                                        </td>
+                                                        <td class="align-baseline">
                                                             @if (!empty($routeDetail))
                                                                 <table class="table table-sm table-hover">
                                                                     <thead>
@@ -272,7 +321,7 @@
                                                                                 }
                                                                             @endphp
                                                                             <tr>
-                                                                                <td>{!! ucwords($column) !!}</td>
+                                                                                <td>{!! ucwords(str_replace('_', ' ', $column)) !!}</td>
                                                                                 <td>{!! $value !!}</td>
                                                                             </tr>
                                                                         @endforeach
@@ -280,7 +329,7 @@
                                                                 </table>
                                                             @endif
                                                         </td>
-                                                        <td>
+                                                        <td class="align-baseline">
                                                             @if (!empty($parametersDetail))
                                                                 <table class="table table-sm table-hover">
                                                                     <thead>
@@ -298,7 +347,7 @@
                                                                                     }
                                                                                 @endphp
                                                                                 <tr>
-                                                                                    <td>{!! ucwords($column) !!}</td>
+                                                                                    <td>{!! ucwords(str_replace('_', ' ', $column)) !!}</td>
                                                                                     <td>{!! $value !!}</td>
                                                                                 </tr>
                                                                             @endif
@@ -307,7 +356,7 @@
                                                                 </table>
                                                             @endif
                                                         </td>
-                                                        <td>
+                                                        <td class="align-baseline">
                                                             @if (!empty($userDetail))
                                                                 <table class="table table-sm table-hover">
                                                                     <thead>
@@ -324,13 +373,16 @@
                                                                                 }
                                                                             @endphp
                                                                             <tr>
-                                                                                <td>{!! ucwords($column) !!}</td>
+                                                                                <td>{!! ucwords(str_replace('_', ' ', $column)) !!}</td>
                                                                                 <td>{!! $value !!}</td>
                                                                             </tr>
                                                                         @endforeach
                                                                     </tbody>
                                                                 </table>
                                                             @endif
+                                                        </td>
+                                                        <td class="align-baseline">
+                                                            {{ date('Y-m-d H:i:s', strtotime($item['created_at'])) }}
                                                         </td>
                                                     </tr>
                                                 @endforeach
