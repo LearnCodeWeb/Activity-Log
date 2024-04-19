@@ -47,7 +47,7 @@ composer dump-autoload
 </details>
 
 
-## Composer
+## Composer Installation
 Open `composer.json` and add the below line under the repositories array. If you have any other package then append this package. The must look like below.
 
 
