@@ -1,5 +1,5 @@
 # Activity Log
-This package is use to save all activities of user build for NFS dashboard.
+This package is use to save all activities of user build for dashboard.
 
 
 On the root of your project just run the below command and download this DIR and paste in activitylog folder. We don't have any package so you have to do it manually.
