@@ -45,11 +45,7 @@ After adding run the below command to load the package in your composer.
 </details>
 
 
-
-
-Composer
-Installation with the composer is very simple, this package is only for NFS KOT so we need to fetch the package from a private repository. For that, you just need to add the below lines in your root composer.json file.
-
+## Composer
 Open `composer.json` and add the below line under the repositories array. If you have any other package then append this package. The must look like below.
 
 
