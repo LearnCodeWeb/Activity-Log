@@ -40,7 +40,9 @@ After adding run the below command to load the package in your composer.
 
 
 
-````composer dump-autoload````
+````
+composer dump-autoload
+````
 
 </details>
 
