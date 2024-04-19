@@ -9,9 +9,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
 </head>
 <style>
     .container {
@@ -130,7 +127,7 @@
     <main>
         <div class="d-flex flex-column flex-shrink-0 p-3 shadow border border-r sidebar" style="width: 250px;">
             <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
-                <span class="fs-4">NFS Activity Log</span>
+                <span class="fs-4">Activity Log</span>
             </a>
             <hr>
             <ul class="nav nav-pills flex-column mb-auto">
@@ -163,13 +160,16 @@
                                         <div class="col-sm-3 mb-3">
                                             <label>Create Date</label>
                                             <div class="input-group">
-                                                <input type="text" class="form-control date" name="from_created_at"
+                                                <input type="date" class="form-control" name="from_created_at"
                                                     value="{{ request('from_created_at') }}" id="from_created_at"
-                                                    placeholder="Date from" readonly>
+                                                    placeholder="Date from">
                                                 <span class="input-group-text">-</span>
-                                                <input type="text" class="form-control date" name="to_created_at"
+                                                <input type="date" class="form-control" name="to_created_at"
                                                     value="{{ request('to_created_at') }}" id="to_created_at"
-                                                    placeholder="Date to" readonly>
+                                                    placeholder="Date to">
+                                                <button type="button" class="btn btn-dark"
+                                                    onclick="$('#from_created_at, #to_created_at').val('');"><i
+                                                        class="bi bi-arrow-clockwise"></i></button>
                                             </div>
                                         </div>
                                         <div class="col-sm-3 mb-3">
@@ -240,12 +240,14 @@
                                         </tfoot>
                                         <tbody>
                                             @if (!$log->isEmpty())
+                                                @php $activityLogController = app('Lcw\Activitylog\Controllers\ActivityLogController'); @endphp
                                                 @foreach ($log as $key => $item)
                                                     @php
-                                                        $userIpDetail = json_decode($item['user_ip_detail'], true);
-                                                        $serverIpDetail = json_decode($item['server_ip_detail'], true);
-                                                        $userDetail = json_decode($item['user'], true);
-                                                        $parametersDetail = json_decode($item['query_string'], true);
+                                                        $userIpDetail = $activityLogController->singleArray(json_decode($item['user_ip_detail'], true)) ?? [];
+                                                        $serverIpDetail = $activityLogController->singleArray(json_decode($item['server_ip_detail'], true)) ?? [];
+                                                        $userDetail = $activityLogController->singleArray(json_decode($item['user'], true)) ?? [];
+                                                        $parametersDetail = $activityLogController->singleArray(json_decode($item['query_string'], true)) ?? [];
+                                                        $routeDetail = $activityLogController->singleArray(json_decode($item['route_detail'], true)) ?? [];
                                                     @endphp
                                                     <tr>
                                                         <td class="align-baseline">{{ $key + 1 }}</td>
@@ -406,7 +408,7 @@
 
                 </div>
                 <footer class="pt-5 my-5 text-muted border-top">
-                    Created by <b>Khalid Zaid Bin</b> for <a href="{{ url('/') }}" target="_blank">NFS</a> · ©
+                    Created by <b>Khalid Zaid Bin</b> for <a href="{{ url('/') }}" target="_blank">KOT</a> · ©
                     2023
                 </footer>
             </div>
@@ -416,22 +418,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous">
     </script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
-
     <script>
-        $(document).ready(function() {
-            $('body').on('focus', ".date", function() {
-                $(this).datepicker({
-                    dateFormat: 'yy-mm-dd',
-                    changeMonth: true,
-                    changeYear: true,
-                    yearRange: "-80:+10"
-                });
-            });
-            $('.selectpicker').selectpicker();
-        });
         /* global bootstrap: false */
         (function() {
             'use strict'

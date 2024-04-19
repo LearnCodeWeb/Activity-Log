@@ -5,9 +5,14 @@ namespace Lcw\Activitylog\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Lcw\Activitylog\ActivityLog;
+use Lcw\Activitylog\Traits\ActivityLogActions;
+
 
 class ActivityLogController
 {
+
+    use ActivityLogActions;
+
     /**
      * Get all logs
      * @param request paramerters and model

@@ -4,6 +4,8 @@ namespace Lcw\Activitylog;
 
 use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Lcw\Activitylog\Models\ActivityLog as ModelsActivityLog;
 use Lcw\Activitylog\Traits\ActivityLogActions;
 
@@ -14,6 +16,7 @@ use Lcw\Activitylog\Traits\ActivityLogActions;
  * 
  * Default Route is Your-Domain/log
  * 
+ * @param ignore_route [If set system ignore to create the activity on that route]
  * @param log [string]
  * @param server_ip [The server ip address]
  * @param user_ip [The client/user ip address]
@@ -44,23 +47,22 @@ class ActivityLog
 
             // Delete all old Records
             self::logDelete();
-
-            $condition = '1';
+            $activityLog = new ModelsActivityLog();
             if (!empty($request->from_created_at)) {
-                $condition .= ' AND DATE(created_at) >= "' . $request->from_created_at . '"';
+                $activityLog = $activityLog->where(DB::raw('DATE(created_at)'), '>=', $request->from_created_at);
             }
             if (!empty($request->to_created_at)) {
-                $condition .= ' AND DATE(created_at) <= "' . $request->to_created_at . '"';
+                $activityLog = $activityLog->where(DB::raw('DATE(created_at)'), '<=', $request->to_created_at);
             }
             if (!empty($request->log)) {
-                $condition .= ' AND log LIKE "%' . $request->log . '%"';
+                $activityLog = $activityLog->where('log', 'LIKE', '%' . $request->log . '%');
             }
             if (!empty($request->user_id)) {
-                $condition .= ' AND user_id = "' . $request->user_id . '"';
+                $activityLog = $activityLog->where('user_id', $request->user_id);
             }
 
-            $activityLog = new ModelsActivityLog();
-            return $activityLog->whereRaw($condition)->orderBy('id', 'DESC')->paginate($limit);
+
+            return $activityLog->orderBy('id', 'DESC')->paginate($limit);
         } catch (Exception $e) {
             return '[Get Method] Fetch data not working: ' . $e->getMessage();
         }
@@ -79,21 +81,22 @@ class ActivityLog
         $aData = [];
         foreach ($allUsers as $key => $value) {
             $user = json_decode($value['user'], true);
-            if (array_key_exists('username', $user)) {
-                $aData[$user['id']] = $user['username'];
-            } elseif (array_key_exists('name', $user)) {
-                $aData[$user['id']] = $user['name'];
-            } elseif (array_key_exists('firstname', $user)) {
-                $aData[$user['id']] = $user['firstname'];
-            } elseif (array_key_exists('lastname', $user)) {
-                $aData[$user['id']] = $user['lastname'];
-            } elseif (array_key_exists('first_name', $user)) {
-                $aData[$user['id']] = $user['first_name'];
-            } elseif (array_key_exists('last_name', $user)) {
-                $aData[$user['id']] = $user['last_name'];
-            } else {
-                $aData[$user['id']] = $user['id'];
-            }
+            if (!empty($user))
+                if (array_key_exists('username', $user)) {
+                    $aData[$user['id']] = $user['username'];
+                } elseif (array_key_exists('name', $user)) {
+                    $aData[$user['id']] = $user['name'];
+                } elseif (array_key_exists('firstname', $user)) {
+                    $aData[$user['id']] = $user['firstname'];
+                } elseif (array_key_exists('lastname', $user)) {
+                    $aData[$user['id']] = $user['lastname'];
+                } elseif (array_key_exists('first_name', $user)) {
+                    $aData[$user['id']] = $user['first_name'];
+                } elseif (array_key_exists('last_name', $user)) {
+                    $aData[$user['id']] = $user['last_name'];
+                } else {
+                    $aData[$user['id']] = $user['id'];
+                }
         }
         asort($aData);
         return array_unique($aData);
@@ -150,11 +153,25 @@ class ActivityLog
 
     /**
      * Save the log record in table
+     * If ignore route set system will not create any activity on that route
      * @param parameters array
      * @return resources with created log
      */
     public function create(array $paramerts = [])
     {
+
+        $configSettings = $this->getConfigSettings();
+        if (isset($configSettings['ignore_routes']) && !empty($configSettings['ignore_routes'])) {
+            $routeName =  Route::currentRouteName();
+            $routePath = Route::getFacadeRoot()->current()->uri();
+            if (in_array($routeName, $configSettings['ignore_routes'])) {
+                return true;
+            }
+            if (in_array($routePath, $configSettings['ignore_routes'])) {
+                return true;
+            }
+        }
+
         $activityLog = new ModelsActivityLog();
         $paramerts = array_filter($paramerts);
         $defaultParams = self::defaultData();
@@ -172,22 +189,23 @@ class ActivityLog
 
     /**
      * Delete older data 
-     * Set in .env [ACTIVITY_LOG_DEL = 3] to change the default delete limit
+     * Set [delete_limit] in config file.
      * @param pass any number in months
      * @return bool
      */
     public function logDelete(int $month = 3)
     {
         try {
-            if (getenv("ACTIVITY_LOG_DEL")) {
-                $month = env("ACTIVITY_LOG_DEL");
+            if (!isset($month)) {
+                $configSettings = $this->getConfigSettings();
+                $month = $configSettings['delete_limit'];
             }
             $oldDate = date('Y-m-d', strtotime('-' . $month . ' months'));
 
             $activityLog = new ModelsActivityLog();
-            return $activityLog->where('created_at', '<', $oldDate)->delete();
+            return $activityLog->where(DB::raw('DATE(created_at)'), '<', $oldDate)->delete();
         } catch (Exception $e) {
-            return '[Get Method] Fetch data not working: ' . $e->getMessage();
+            return '[Delete Method] log delete not working: ' . $e->getMessage();
         }
     }
 }

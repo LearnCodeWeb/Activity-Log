@@ -120,8 +120,49 @@ trait ActivityLogActions
         if (!empty($queryString)) {
             $response =  json_encode($queryString);
         } else {
-            $response =  json_encode(request()->all());
+            $routeParams = request()->route()->parameters();
+            $requestParams = request()->all();
+            $response =  json_encode($routeParams + $requestParams);
         }
         return $response;
+    }
+
+
+
+    /**
+     * Check the config settings if user set and publish
+     * We will use user settings
+     * @return array
+     */
+    public function getConfigSettings()
+    {
+        $configData = config('lcwActivityLogConfig.lcw_activity_log');
+        if (file_exists(config_path('lcw_activity_log_config.php'))) {
+            $configData = config('lcw_activity_log_config.lcw_activity_log');
+        }
+        return $configData;
+    }
+
+
+    /**
+     * Covert nested to single array
+     * @param array
+     * @return array
+     */
+    public function singleArray($array)
+    {
+        $result = [];
+
+        foreach ($array as $key => $value) {
+            $currentKey = $key;
+
+            if (is_array($value)) {
+                $result = array_merge($result, $this->singleArray($value));
+            } else {
+                $result[$currentKey] = $value;
+            }
+        }
+
+        return $result;
     }
 }
