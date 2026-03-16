@@ -42,7 +42,13 @@ composer require learncodeweb/activitylog
 
 ### Register Service Provider
 
-**Laravel 8 – 10:** Add the service provider in `config/app.php` under the `providers` array:
+> ⚠️ **Important:** This package does **not** support Laravel's auto-discovery. You **must** manually register the service provider based on your Laravel version.
+
+---
+
+#### Laravel 8, 9, 10 — `config/app.php`
+
+Open `config/app.php` and add inside the `providers` array:
 
 ```php
 /*
@@ -51,7 +57,20 @@ composer require learncodeweb/activitylog
 Lcw\Activitylog\Providers\ActivityLogProvider::class,
 ```
 
-> **Note:** Laravel 11+ uses auto-discovery — no manual registration needed.
+---
+
+#### Laravel 11 & 12 — `bootstrap/providers.php`
+
+Laravel 11 and 12 **no longer use** `config/app.php` for providers. Instead, open `bootstrap/providers.php` and add:
+
+```php
+<?php
+
+return [
+    App\Providers\AppServiceProvider::class,
+    Lcw\Activitylog\Providers\ActivityLogProvider::class, // ✅ Add this line
+];
+```
 
 ---
 
@@ -290,7 +309,7 @@ A: Yes! Use `$activityLog->get($request)` in your controller and pass the data t
 A: Publish the config file and add those route names or URIs to the `ignore_routes` array.
 
 **Q: Does it work with Laravel 12?**  
-A: Yes, it is compatible with Laravel 8 through 12.
+A: Yes, but you must manually register the provider in `bootstrap/providers.php` — see the [Register Service Provider](#register-service-provider) section above.
 
 ---
 
@@ -310,8 +329,8 @@ This package is open-sourced software licensed under the [MIT License](LICENSE).
 ## 👨‍💻 Author
 
 **Mian Zaid (Khalid Zaid)**  
-🌐 [learncodeweb.com](https://learncodeweb.com)  
-📧 contact.woop@learncodeweb.com  
+🌐 [quran.ahlesunat.com](https://quran.ahlesunat.com)  
+📧 zaidbinkhalid31@gmail.com  
 📦 [Packagist](https://packagist.org/packages/learncodeweb/activitylog) | [GitHub](https://github.com/LearnCodeWeb/Activity-Log)
 
 ---
