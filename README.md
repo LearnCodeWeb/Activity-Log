@@ -58,7 +58,7 @@ Open `composer.json` and add the below line under the repositories array. If you
         ....,
         {
             "type": "vcs",
-            "url": "https://github.com/kateoftokyo/Dashboard-Activity-Log"
+            "url": "https://github.com/LearnCodeWeb/Dashboard-Activity-Log"
         }
     ],
 ````
