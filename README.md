@@ -1,170 +1,319 @@
-# Activity Log
+# 🗂️ Laravel Activity Log
 
-This package is only for Laravel >=8 Framework.
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/learncodeweb/activitylog.svg?style=flat-square)](https://packagist.org/packages/learncodeweb/activitylog)
+[![Total Downloads](https://img.shields.io/packagist/dt/learncodeweb/activitylog.svg?style=flat-square)](https://packagist.org/packages/learncodeweb/activitylog)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PHP Version](https://img.shields.io/badge/PHP-%3E%3D7.0-blue.svg)](https://php.net)
 
-<details>
-  <summary>Manual installation process.</summary>
-  
-  On the root of your project just run the below command download this DIR and paste it into the activitylog folder. We don't have any package so you have to do it manually.
+A simple and powerful **Activity Log** package for Laravel. It automatically tracks and records every user action in your admin or user panel after login — no complex setup needed.
 
-````
-mkdir -p packages/lcw/activitylog
-````
-After copying, the code goes to that directory and updates the composer for that use below command.
+> ✅ Tested with **Laravel 8, 9, 10, 11, 12**
 
+---
 
-````
-cd packages/lcw/activitylog/
-composer dump-autoload
-````
-Simple use Just add the below line in your root composer.json in the autoload section.
+## ✨ Features
 
+- 🔍 Automatically logs all authenticated user activity
+- 🚫 Ignore specific routes you don't want to track
+- 🗑️ Auto-delete old logs based on configurable time limit
+- 📋 Built-in default view to see all logs at `/log`
+- 🛠️ Create custom logs manually with full control
+- ⚡ Easy installation via Composer
 
-````
-"Lcw\\Activitylog\\": "packages/lcw/activitylog/src/"
-````
-The composer.json must look like the below after adding the like.
+---
 
+## 📋 Requirements
 
-````
-"autoload": {
-    "psr-4": {
-        "App\\": "app/",
-        "Database\\Factories\\": "database/factories/",
-        "Database\\Seeders\\": "database/seeders/",
-        "Lcw\\Activitylog\\": "packages/lcw/activitylog/src/"
-    }
-},
-````
-After adding run the below command to load the package in your composer.
+| Requirement | Version |
+|-------------|---------|
+| PHP | >= 7.0 |
+| Laravel | >= 8.x |
+| Guzzle HTTP | ^7.0 |
 
+---
 
+## 🚀 Installation
 
-````
-composer dump-autoload
-````
+Install the package via Composer:
 
-</details>
+```bash
+composer require learncodeweb/activitylog
+```
 
+### Register Service Provider
 
-## Composer Installation
-Open `composer.json` and add the below line under the repositories array. If you have any other package then append this package. The must look like below.
+**Laravel 8 – 10:** Add the service provider in `config/app.php` under the `providers` array:
 
-
-````
-"repositories": [
-        ....,
-        ....,
-        ....,
-        {
-            "type": "vcs",
-            "url": "https://github.com/LearnCodeWeb/Dashboard-Activity-Log"
-        }
-    ],
-````
-After adding the above code try to install the package in your project.
-
-
-````
-composer require lcw/activitylog
-````
-
-## Add Service
-After the composer add the service provider in your `config/app.php`. Open file config/app.php and add the below line under the provider's array, better to add it in the packages section.
-````
+```php
 /*
-* Package Service Providers...
-*/
-...
-...
+ * Package Service Providers...
+ */
 Lcw\Activitylog\Providers\ActivityLogProvider::class,
-````
+```
 
-## Migration Export
-For migration, export runs the below command.
-````
+> **Note:** Laravel 11+ uses auto-discovery — no manual registration needed.
+
+---
+
+## 🗄️ Database Setup
+
+### Step 1 — Publish Migration
+
+```bash
 php artisan vendor:publish --provider="Lcw\Activitylog\Providers\ActivityLogProvider" --tag="migrations"
-````
-After migration publishes just run a simple command to add a table.
+```
 
-````
+### Step 2 — Run Migration
+
+```bash
 php artisan migrate
-````
+```
 
-## Config Export
-You can also export the config file into your project root config, this function empowers you to change things if you want. With the config export, you can set the delete limit in your config file and also you can add route PATH/NAMES where you don't want to save activity.
+This creates the `activity_logs` table in your database.
 
-To export the config on your root run the below command.
-````
+---
+
+## ⚙️ Configuration (Optional)
+
+Export the config file to customize settings:
+
+```bash
 php artisan vendor:publish --provider="Lcw\Activitylog\Providers\ActivityLogProvider" --tag="config"
-````
-After `publish config` you can set the parameters as per your need. Below is the list of all available parameters.
+```
 
-````
-/**
- * Change the value to change the activity log delete limit
- * By default it is 3 in months
- * @param integer in months
- */
-'delete_limit' => 2,
-/**
- * Pass route path or names
- * If you don't want to create the activity log use ignore_routes
- * @param route URI/NAMES
- */
-'ignore_routes' => ['dashboard.index', 'settings.download.history.activity_log'],
-````
-Set config in settings ignore_route [If set system ignore to create the activity on that route]
+This creates `config/lcw_activity_log_config.php`. Below are the available options:
 
-You can also delete the data and change the default limit by editing the config file config\lcw_activity_log_config.php. Pass the value in months default is set at 3 Months.
+```php
+<?php
 
-# Define in months only
-````
-delete_limit = 2
-````
-Default View
-There is a default view to see the logs but you can make your own log view in your app. With this package, one route will be created which is mentioned below.
+return [
 
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Limit
+    |--------------------------------------------------------------------------
+    | Set how many months of old logs to keep before auto-deletion.
+    | Default: 3 months
+    */
+    'delete_limit' => 3,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Ignore Routes
+    |--------------------------------------------------------------------------
+    | List route names or URIs where you do NOT want activity to be logged.
+    | Example: dashboard index, file downloads, etc.
+    */
+    'ignore_routes' => [
+        'dashboard.index',
+        'settings.download.history.activity_log',
+    ],
 
-# Route Name
-````
-lcw_activity_log_index
-````
-# URI
-````
-Your-Domain-Url/log
-````
-You can create your own view and get the log data by using the below method in your controller.
+];
+```
 
-````
+---
+
+## 📖 Usage
+
+### View Logs (Default Built-in View)
+
+The package automatically provides a log viewer at:
+
+```
+http://your-domain.com/log
+```
+
+**Route name:** `lcw_activity_log_index`
+
+---
+
+### Get Logs in Your Own Controller
+
+You can fetch logs manually and display them in your own view:
+
+```php
 use Lcw\Activitylog\ActivityLog;
-$activityLog = new ActivityLog();
-$log = $activityLog->get($request);
-````
-You also can delete the log by calling the logDelete() method like below in your controller.
-````
-use Lcw\Activitylog\ActivityLog;
-$activityLog = new ActivityLog();
-$log = $activityLog->logDelete(1); # delete all one month old log data
-````
 
-## Custom Creation
-You can create a custom activity log with the below method. The parameters you need to pass in the custom log are given below.
-````
-@param log [string]
-@param server_ip [The server IP address]
-@param user_ip [The client/user IP address]
-@param route_detail [Array with route path details]
-@param query_string [Array with parameters]
-@param user_id [Auth session id]
-@param user [Array of auth]
-@param created_at [datetime]
-````
+public function index(Request $request)
+{
+    $activityLog = new ActivityLog();
+    $logs = $activityLog->get($request);
 
-````
+    return view('your-view', compact('logs'));
+}
+```
+
+---
+
+### Delete Old Logs
+
+Delete logs older than a given number of months:
+
+```php
 use Lcw\Activitylog\ActivityLog;
+
 $activityLog = new ActivityLog();
-$activityLog->create(['log' => 'Update notification', 'query_string' => $parameters]);
-````
-If you need any help ask me, Thank you.
+
+// Delete logs older than 1 month
+$activityLog->logDelete(1);
+
+// Delete logs older than 3 months
+$activityLog->logDelete(3);
+```
+
+---
+
+### Create a Custom Log Entry
+
+You can manually create a log entry with custom data:
+
+```php
+use Lcw\Activitylog\ActivityLog;
+
+$activityLog = new ActivityLog();
+
+$activityLog->create([
+    'log'          => 'User updated their notification settings',
+    'query_string' => $request->all(),
+]);
+```
+
+#### Available Parameters for `create()`
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `log` | `string` | A description of the activity |
+| `server_ip` | `string` | The server's IP address |
+| `user_ip` | `string` | The client/user's IP address |
+| `route_detail` | `array` | Array with current route path details |
+| `query_string` | `array` | Array of request parameters |
+| `user_id` | `int` | Authenticated user's ID |
+| `user` | `array` | Array of authenticated user data |
+| `created_at` | `datetime` | Custom timestamp for the log entry |
+
+---
+
+## 🔒 Ignoring Routes
+
+To skip logging on specific routes, publish the config (see above) and add route **names** or **URIs** to the `ignore_routes` array:
+
+```php
+'ignore_routes' => [
+    'dashboard.index',           // by route name
+    'api/health-check',          // by URI
+    'settings.download.history.activity_log',
+],
+```
+
+---
+
+## 📁 Package Structure
+
+```
+src/
+├── ActivityLog.php              # Core activity log class
+├── Providers/
+│   └── ActivityLogProvider.php  # Service provider
+├── Http/
+│   └── Middleware/              # Auto-logging middleware
+├── Models/
+│   └── ActivityLogModel.php     # Eloquent model
+├── database/
+│   └── migrations/              # Migration files
+├── config/
+│   └── lcw_activity_log_config.php  # Config file
+└── resources/
+    └── views/                   # Default log viewer blade templates
+```
+
+---
+
+## 🧪 Example: Full Controller Usage
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Lcw\Activitylog\ActivityLog;
+
+class ActivityLogController extends Controller
+{
+    protected $activityLog;
+
+    public function __construct()
+    {
+        $this->activityLog = new ActivityLog();
+    }
+
+    // Show all activity logs
+    public function index(Request $request)
+    {
+        $logs = $this->activityLog->get($request);
+        return view('admin.activity-log', compact('logs'));
+    }
+
+    // Delete logs older than X months
+    public function deleteOld(Request $request)
+    {
+        $months = $request->input('months', 3);
+        $this->activityLog->logDelete($months);
+
+        return back()->with('success', 'Old logs deleted successfully!');
+    }
+
+    // Manually log a custom action
+    public function logCustomAction()
+    {
+        $this->activityLog->create([
+            'log' => 'Admin exported the user report',
+        ]);
+
+        return back()->with('success', 'Action logged!');
+    }
+}
+```
+
+---
+
+## ❓ FAQ
+
+**Q: Does it log guest (unauthenticated) users?**  
+A: No, this package is designed for logged-in users only. It works best inside admin/user panels after authentication.
+
+**Q: Can I use my own view instead of the default `/log` page?**  
+A: Yes! Use `$activityLog->get($request)` in your controller and pass the data to your own Blade view.
+
+**Q: How do I stop certain pages from being logged?**  
+A: Publish the config file and add those route names or URIs to the `ignore_routes` array.
+
+**Q: Does it work with Laravel 12?**  
+A: Yes, it is compatible with Laravel 8 through 12.
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!  
+Feel free to open an [issue](https://github.com/LearnCodeWeb/Activity-Log/issues) or submit a pull request.
+
+---
+
+## 📄 License
+
+This package is open-sourced software licensed under the [MIT License](LICENSE).
+
+---
+
+## 👨‍💻 Author
+
+**Mian Zaid (Khalid Zaid)**  
+🌐 [learncodeweb.com](https://learncodeweb.com)  
+📧 contact.woop@learncodeweb.com  
+📦 [Packagist](https://packagist.org/packages/learncodeweb/activitylog) | [GitHub](https://github.com/LearnCodeWeb/Activity-Log)
+
+---
+
+> If this package helped you, please consider giving it a ⭐ on GitHub!
