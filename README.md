@@ -297,6 +297,142 @@ class ActivityLogController extends Controller
 
 ---
 
+## 🏢 Multi-Tenant Setup (stancl/tenancy)
+
+Agar aap `stancl/tenancy` (tenancy-for-laravel) use kar rahe hain toh neeche diye steps follow karo. Is package ki migration **tenant database** mein hogi aur har tenant apna alag activity log rakhega.
+
+---
+
+### Step 1 — Migration Publish Karke Tenant Folder Mein Move Karo
+
+`stancl/tenancy` mein tenant migrations `database/migrations/tenant/` folder mein honi chahiye.
+
+```bash
+# Pehle publish karo
+php artisan vendor:publish --provider="Lcw\Activitylog\Providers\ActivityLogProvider" --tag="migrations"
+
+# Phir tenant folder mein move karo
+mv database/migrations/*_create_activity_log_master.php database/migrations/tenant/
+```
+
+---
+
+### Step 2 — Tenancy Config Mein Migration Path Confirm Karo
+
+`config/tenancy.php` mein check karo ke tenant migrations ka path sahi set hai:
+
+```php
+'migration_parameters' => [
+    '--path'     => ['/database/migrations/tenant'],
+    '--realpath' => true,
+    '--force'    => true,
+],
+```
+
+---
+
+### Step 3 — Tenant Migration Run Karo
+
+```bash
+# Sab tenants par migrate karo
+php artisan tenants:migrate
+
+# Sirf ek specific tenant par migrate karo
+php artisan tenants:migrate --tenants=your-tenant-id
+```
+
+Yeh command **har tenant ke alag database** mein `activity_log_master` table create kar degi.
+
+---
+
+### Step 4 — Naye Tenant Par Auto Migration
+
+Jab naya tenant create ho toh automatically migration run ho — `app/Providers/TenancyServiceProvider.php` mein confirm karo ke yeh configured hai:
+
+```php
+use Stancl\Tenancy\Events;
+use Stancl\Tenancy\Jobs\MigrateDatabase;
+
+'listeners' => [
+    Events\TenantCreated::class => [
+        MigrateDatabase::class, // ✅ Naye tenant par auto migrate hoga
+    ],
+],
+```
+
+Agar yeh set hai toh har naye tenant ke create hone par `activity_log_master` table automatically ban jayega.
+
+---
+
+### Step 5 — Tenant Context Mein Normal Use Karo
+
+`stancl/tenancy` automatically tenant ka database switch karta hai. Package bilkul normal tarah use karo — har tenant ka data automatically uske apne database mein jayega:
+
+```php
+use Lcw\Activitylog\ActivityLog;
+
+$activityLog = new ActivityLog();
+
+// Logs fetch karo (current tenant ka database use hoga automatically)
+$logs = $activityLog->get($request);
+
+// Custom log banana
+$activityLog->create([
+    'log' => 'User ne invoice download ki',
+]);
+
+// Purane logs delete karo
+$activityLog->logDelete(3);
+```
+
+---
+
+### Step 6 — Central App Se Specific Tenant Ka Log Dekhna
+
+Agar aap central panel se kisi specific tenant ka log access karna chahte hain:
+
+```php
+use Lcw\Activitylog\ActivityLog;
+
+$tenant = \App\Models\Tenant::find('tenant-id');
+
+tenancy()->initialize($tenant);
+
+$activityLog = new ActivityLog();
+$logs = $activityLog->get($request);
+
+tenancy()->end();
+
+return view('admin.tenant-logs', compact('logs'));
+```
+
+---
+
+### Tenant Default Log View
+
+Tenant subdomain ya domain par default log view is URL par milega:
+
+```
+http://tenant1.yourdomain.com/log
+```
+
+Har tenant ka `/log` sirf **usi tenant ka data** dikhayega.
+
+---
+
+### Tenant Setup — Quick Reference
+
+| Task | Command |
+|------|---------|
+| Migration publish karo | `php artisan vendor:publish --tag="migrations"` |
+| Migration move karo | `database/migrations/tenant/` folder mein |
+| Sab tenants migrate karo | `php artisan tenants:migrate` |
+| Single tenant migrate karo | `php artisan tenants:migrate --tenants=id` |
+| Tenant rollback karo | `php artisan tenants:migrate --rollback` |
+| Config publish karo | `php artisan vendor:publish --tag="config"` |
+
+---
+
 ## ❓ FAQ
 
 **Q: Does it log guest (unauthenticated) users?**  
@@ -310,6 +446,9 @@ A: Publish the config file and add those route names or URIs to the `ignore_rout
 
 **Q: Does it work with Laravel 12?**  
 A: Yes, but you must manually register the provider in `bootstrap/providers.php` — see the [Register Service Provider](#register-service-provider) section above.
+
+**Q: Does it support multi-tenancy with stancl/tenancy?**  
+A: Yes! Move the published migration to `database/migrations/tenant/`, run `php artisan tenants:migrate`, and the package will work per-tenant automatically. See the [Multi-Tenant Setup](#-multi-tenant-setup-stancltenancy) section for full details.
 
 ---
 
