@@ -408,8 +408,8 @@
 
                 </div>
                 <footer class="pt-5 my-5 text-muted border-top">
-                    Created by <b>Khalid Zaid Bin</b> for <a href="{{ url('/') }}" target="_blank">KOT</a> · ©
-                    2023
+                    Created by <b>Khalid Zaid Bin</b> for <a href="{{ url('/') }}" target="_blank">LCW</a> · ©
+                    {{date('Y')}}
                 </footer>
             </div>
         </div>
